@@ -18,9 +18,11 @@ class StaticGeneratorMiddleware(object):
     gen = StaticGenerator()
     
     def process_response(self, request, response):
+        path = request.path_info
+        query_string = request.META.get('QUERY_STRING', '')
         if response.status_code == 200:
             for url in self.urls:
-                if url.match(request.path_info):
-                    self.gen.publish_from_path(request.path_info, response.content)
+                if url.match(path):
+                    self.gen.publish_from_path(path, query_string, response.content)
                     break
         return response

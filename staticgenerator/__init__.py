@@ -173,23 +173,25 @@ class StaticGenerator(object):
 
         return response.content
 
-    def get_filename_from_path(self, path):
+    def get_filename_from_path(self, path, query_string):
         """
         Returns (filename, directory)
         Creates index.html for path if necessary
         """
+        if query_string:
+            path += query_string + '/'
         if path.endswith('/'):
             path = '%sindex.html' % path
 
         filename = self.fs.join(self.web_root, path.lstrip('/')).encode('utf-8')
         return filename, self.fs.dirname(filename)
 
-    def publish_from_path(self, path, content=None):
+    def publish_from_path(self, path, query_string='', content=None):
         """
         Gets filename and content for a path, attempts to create directory if 
         necessary, writes to file.
         """
-        filename, directory = self.get_filename_from_path(path)
+        filename, directory = self.get_filename_from_path(path, query_string)
         if not content:
             content = self.get_content_from_path(path)
 

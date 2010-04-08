@@ -3,8 +3,10 @@
 
 """Static file generator for Django."""
 import stat
+import urlparse
 
 from django.utils.functional import Promise
+from django.http import QueryDict
 
 from filesystem import FileSystem
 from handlers import DummyHandler
@@ -153,7 +155,10 @@ class StaticGenerator(object):
         """
 
         request = self.http_request()
-        request.path_info = path
+        # We must parse the path to grab query string
+        parsed = urlparse.urlparse(path)
+        request.path_info = parsed.path
+        request.GET = QueryDict(parsed.query)
         request.META.setdefault('SERVER_PORT', 80)
         request.META.setdefault('SERVER_NAME', self.server_name)
 

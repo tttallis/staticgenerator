@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-version = '1.4.1.1-openhatch'
+version = '1.4.1.2'
 
 setup(name='staticgenerator',
       version=version,

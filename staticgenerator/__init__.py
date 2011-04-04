@@ -8,7 +8,7 @@ from django.utils.functional import Promise
 
 from filesystem import FileSystem
 from handlers import DummyHandler
-
+import os
 
 class StaticGeneratorException(Exception):
     pass
@@ -206,18 +206,19 @@ class StaticGenerator(object):
     def delete_from_path(self, path):
         """Deletes file, attempts to delete directory"""
         filename, directory = self.get_filename_from_path(path)
-        try:
-            if self.fs.exists(filename):
-                self.fs.remove(filename)
-        except:
-            raise StaticGeneratorException('Could not delete file: %s' % filename)
-
-        try:
-            self.fs.rmdir(directory)
-        except OSError:
-            # Will fail if a directory is not empty, in which case we don't 
-            # want to delete it anyway
-            pass
+        if self.fs.is_inside(filename, self.web_root):
+            try:
+                if self.fs.exists(filename):
+                    self.fs.remove(filename)
+            except:
+                raise StaticGeneratorException('Could not delete file: %s' % filename)
+    
+            try:
+                self.fs.rmdir(directory)
+            except OSError:
+                # Will fail if a directory is not empty, in which case we don't 
+                # want to delete it anyway
+                pass
 
     def do_all(self, func):
         return [func(path) for path in self.resources]
@@ -233,3 +234,4 @@ def quick_publish(*resources):
 
 def quick_delete(*resources):
     return StaticGenerator(*resources).delete()
+

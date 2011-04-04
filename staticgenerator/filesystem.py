@@ -40,3 +40,7 @@ class FileSystem(object):
     def dirname(self, path):
         return os.path.dirname(path)
 
+    def is_inside(self, file_path, folder_path):
+        full_file_path = os.path.realpath(file_path)
+        full_folder_path = os.path.realpath(folder_path)
+        return os.path.commonprefix([full_file_path, full_folder_path]) == full_folder_path

@@ -3,6 +3,7 @@
 
 """Static file generator for Django."""
 import stat
+import shutil
 
 from django.utils.functional import Promise
 
@@ -219,6 +220,12 @@ class StaticGenerator(object):
                 # Will fail if a directory is not empty, in which case we don't 
                 # want to delete it anyway
                 pass
+                
+    def delete_dir(self, path):
+        filename, directory = self.get_filename_from_path(path)
+        if self.fs.is_inside(directory, self.web_root):
+            if os.path.exists(directory):
+                shutil.rmtree(directory)
 
     def do_all(self, func):
         return [func(path) for path in self.resources]
@@ -234,4 +241,7 @@ def quick_publish(*resources):
 
 def quick_delete(*resources):
     return StaticGenerator(*resources).delete()
+
+def brutal_delete(path):
+    return StaticGenerator().delete_dir(path)
 

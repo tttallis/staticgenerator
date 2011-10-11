@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-version = '1.4.1.2-tttallis'
+version = '1.4.1'
 
 setup(name='staticgenerator',
       version=version,

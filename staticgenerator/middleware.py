@@ -19,8 +19,6 @@ class StaticGeneratorMiddleware(object):
     
     def process_response(self, request, response):
         if response.status_code == 200:
-            if request.GET or request.POST: # if request contains a get or a post, we don't write to cache
-                return response
             for url in self.urls:
                 if url.match(request.path_info):
                     self.gen.publish_from_path(request.path_info, response.content)

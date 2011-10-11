@@ -18,11 +18,13 @@ class StaticGeneratorMiddleware(object):
     gen = StaticGenerator()
     
     def process_response(self, request, response):
-        if response.status_code == 200:
-            if request.GET or request.POST: # if request contains a get or a post, we don't write to cache
+        path = request.path_info
+        query_string = request.META.get('QUERY_STRING', '')
+        if response.status_code == 200 and not request.user.is_authenticated():
+            if request.POST: # if request contains a post, we don't write to cache
                 return response
             for url in self.urls:
-                if url.match(request.path_info):
-                    self.gen.publish_from_path(request.path_info, response.content)
+                if url.match(path):
+                    self.gen.publish_from_path(path, query_string, response.content)
                     break
         return response

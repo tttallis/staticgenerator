@@ -4,6 +4,28 @@
 
 How many CPU cycles do you suppose are wasted on blogs that are generated every request? Wouldn’t it make more sense to generate them only when they’re updated? StaticGenerator is a Python class for Django that makes it easy to create static files for lightning fast performance. 
 
+## Fork
+
+This is a fork from the main branch in order to add patches from [bolhoed](https://bitbucket.org/bolhoed/mixedcase/src/tip/project/staticgenerator/). See the details at [mixedCase.nl](http://mixedcase.nl/articles/2010/11/16/serving-5000-pages-second-django/).
+
+In short, this adds the ability to only cache for anonymous users and to add the ability to exclude urls:
+
+    WEB_ROOT = os.path.join(os.path.dirname(__file__), 'generated')
+    
+    STATIC_GENERATOR_ANONYMOUS_ONLY = True
+    
+    STATIC_GENERATOR_URLS = (
+        r'^/$',
+        r'^/(articles|projects|about)',
+    )
+    
+    STATIC_GENERATOR_EXCLUDE_URLS = (
+         r'\.xml$',
+         r'^/articles/search',
+         r'^/articles/feed',
+         r'^/articles/comments/posted',
+    )
+
 ## Download
 
 You can get StaticGenerator using `easy_install`:
@@ -109,17 +131,18 @@ This configuration snippet shows how Nginx can automatically show the index.html
             root   /var/www/;
 
             location / {
-                if (-f $request_filename/index.html) {
-                    rewrite (.*) $1/index.html break;
+                default_type  text/html;
+                if (-f $request_filename/index.html$is_args$args) {
+                    rewrite (.*)/ $1/index.html$is_args$args?
+                    break;
                 }
-                if (!-f $request_filename) {
-                    proxy_pass http://django;
+
+                if (!-f $request_filename$is_args$args) {
+                        proxy_pass http://django;
                     break;
                 }
             }
-
         }
-    
     }
     
 ## It’s not for Everything

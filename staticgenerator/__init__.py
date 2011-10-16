@@ -222,7 +222,7 @@ class StaticGenerator(object):
 
     def delete_from_path(self, path):
         """Deletes file, attempts to delete directory"""
-        filename, directory = self.get_filename_from_path(path)
+        filename, directory = self.get_filename_from_path(path, '')
         if self.fs.is_inside(filename, self.web_root):
             try:
                 if self.fs.exists(filename):
@@ -238,7 +238,7 @@ class StaticGenerator(object):
                 pass
                 
     def delete_dir(self, path):
-        filename, directory = self.get_filename_from_path(path)
+        filename, directory = self.get_filename_from_path(path, '')
         if self.fs.is_inside(directory, self.web_root):
             if os.path.exists(directory):
                 shutil.rmtree(directory)

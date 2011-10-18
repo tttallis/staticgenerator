@@ -16,6 +16,7 @@ class StaticGeneratorMiddleware(object):
     """
     urls = tuple([re.compile(url) for url in settings.STATIC_GENERATOR_URLS])
     excluded_urls = tuple([re.compile(url) for url in getattr(settings, 'STATIC_GENERATOR_EXCLUDE_URLS', [])])
+    excluded_queries = tuple([re.compile(url) for url in getattr(settings, 'STATIC_GENERATOR_EXCLUDE_QUERIES', [])]) # this is a bit of a blunt interim instrument - needs design decision
     gen = StaticGenerator()
     
     def process_response(self, request, response):
@@ -28,6 +29,11 @@ class StaticGeneratorMiddleware(object):
             excluded = False
             for url in self.excluded_urls:
                 if url.match(path):
+                    excluded = True
+                    break
+                    
+            for qstring in self.excluded_queries:
+                if qstring.match(query_string):
                     excluded = True
                     break
 

@@ -33,7 +33,7 @@ class StaticGeneratorMiddleware(object):
                     break
                     
             for qstring in self.excluded_queries:
-                if qstring.match(query_string):
+                if qstring.search(query_string):
                     excluded = True
                     break
 

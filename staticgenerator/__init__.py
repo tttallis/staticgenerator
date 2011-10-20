@@ -174,28 +174,29 @@ class StaticGenerator(object):
 
         return response.content
 
-    def get_filename_from_path(self, path, query_string):
+    def get_filename_from_path(self, path, query_string='', extension='html'):
         """
         Returns (filename, directory). None if unable to cache this request.
         Creates index.html for path if necessary
         """
-        if path.endswith('/'):
-            path = '%sindex.html' % path
-        # will not work on windows... meh
+        # will not work on Commodore 64 :)
+        filename = 'index'
         if query_string:
-            path += "?" + query_string
+            filename = query_string
+        if path.endswith('/'):
+            path = '%s%s.%s' % (path, filename, extension)
 
         filename = self.fs.join(self.web_root, path.lstrip('/')).encode('utf-8')
         if len(filename) > 255:
             return None, None
         return filename, self.fs.dirname(filename)
 
-    def publish_from_path(self, path, query_string, content=None):
+    def publish_from_path(self, path, query_string, content=None, extension="html"):
         """
         Gets filename and content for a path, attempts to create directory if 
         necessary, writes to file.
         """
-        filename, directory = self.get_filename_from_path(path, query_string)
+        filename, directory = self.get_filename_from_path(path, query_string, extension)
         if not filename:
             return # cannot cache
         if not content:
@@ -217,12 +218,12 @@ class StaticGenerator(object):
             raise StaticGeneratorException('Could not create the file: %s' % filename)
 
     def recursive_delete_from_path(self, path):
-        filename, directory = self.get_filename_from_path(path, '')
+        filename, directory = self.get_filename_from_path(path)
         shutil.rmtree(directory, True)
 
     def delete_from_path(self, path):
-        """Deletes file, attempts to delete directory"""
-        filename, directory = self.get_filename_from_path(path, '')
+        """Deletes file, attempts to delete directory - used by delete()"""
+        filename, directory = self.get_filename_from_path(path)
         if self.fs.is_inside(filename, self.web_root):
             try:
                 if self.fs.exists(filename):
@@ -238,7 +239,8 @@ class StaticGenerator(object):
                 pass
                 
     def delete_dir(self, path):
-        filename, directory = self.get_filename_from_path(path, '')
+        """Deletes directory tree - used by brutal_delete()"""
+        filename, directory = self.get_filename_from_path(path)
         if self.fs.is_inside(directory, self.web_root):
             if os.path.exists(directory):
                 shutil.rmtree(directory)

@@ -40,7 +40,10 @@ class StaticGeneratorMiddleware(object):
             if not excluded:
                 for url in self.urls:
                     if url.match(path):
-                        self.gen.publish_from_path(path, query_string, response.content)
+                        if request.GET.get('format')=='xml':
+                            self.gen.publish_from_path(path, query_string, response.content, 'xml')
+                        else:
+                            self.gen.publish_from_path(path, query_string, response.content)
                         break
 
         return response
